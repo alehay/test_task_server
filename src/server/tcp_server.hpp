@@ -49,6 +49,6 @@ class TCPserver {
   int sock, listener;
   struct sockaddr_in servaddr;
   uint16_t port;
-}
+};
 
 #endif  //_TCP_SERVER_HPP_
