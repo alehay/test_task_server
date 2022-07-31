@@ -18,8 +18,8 @@ class thread_pool {
   thread_pool(thread_pool& oth) = delete;
   thread_pool(const thread_pool& oth) = delete;
   thread_pool(thread_pool&& oth) = delete;
-  thread_pool operator=(const thread_pool& oth) = delete;
-  thread_pool operator=(thread_pool&& oth) = delete;
+  thread_pool& operator=(const thread_pool& oth) = delete;
+  thread_pool& operator=(thread_pool&& oth) = delete;
 
   thread_pool(uint32_t num_threads) {
     threads.reserve(num_threads);

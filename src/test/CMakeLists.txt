@@ -1,1 +1,2 @@
 add_executable(test_tread_pool test_tread_pool.cpp)
+add_executable(test_client_list test_client_list.cpp)

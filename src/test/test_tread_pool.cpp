@@ -2,7 +2,6 @@
 #include <functional>
 #include "../thread_pool/thread_pool.hpp"
 
-
 class Test {
  public:
   void operator()() { std::cout << "Working with functors!\n"; }
