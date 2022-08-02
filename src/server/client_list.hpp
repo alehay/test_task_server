@@ -4,11 +4,12 @@
 #include <cstdint>
 #include <list>
 #include <mutex>
+#include <memory>
 
 class client_settings {
 public:
   uint64_t client_id;
-  int socket;
+  int *socket;
   uint64_t sequence_start;
   uint64_t sequence_step;
 };

@@ -21,13 +21,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # debag options 
 message("${ESC}[31m${ESC}")
-message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
+message("\t CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 message("${ESC}[0m${ESC}")
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
   message("${ESC}[31m${ESC}")
-  message(" ——————————► DEBUG ◄—————————— ")
-  message("${ESC}[0m${ESC} -")
+  message(" \t——————————► DEBUG ◄—————————— ")
+  message("${ESC}[0m${ESC} ")
 
   #add_compile_options(-Werror)
   add_compile_options(-pedantic-errors)
