@@ -16,12 +16,12 @@ int main(int argc, char* argv[]) {
   signal(SIGINT, signal_handler);
   signal(SIGTSTP, signal_handler);
 
-  std::function<void(std::unique_ptr<int>&&)> worker =
-      [](std::unique_ptr<int> && socket) {
+  std::function<void(std::unique_ptr<int> &&)> worker =
+      [](std::unique_ptr<int>&& socket) {
         printf("tread start \n");
         std::ostringstream ss;
-        ss << "tread info : " << std::this_thread::get_id()
-           << " client id : " << "\n";
+        ss << "tread info : " << std::this_thread::get_id() << " client id : "
+           << "\n";
 
         while (TCP_server::terminate != true) {
           using namespace std::chrono_literals;

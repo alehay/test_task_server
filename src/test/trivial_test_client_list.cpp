@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   std::thread test_tread(simpletest);
   for (int i = 0; i < 10; i++) {
     using namespace std::chrono_literals;
-    //std::this_thread::sleep_for(1ns);
+    // std::this_thread::sleep_for(1ns);
     std::cout << "main tread " << cl->get().client_id << std::endl;
   }
   test_tread.join();
