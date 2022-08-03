@@ -6,6 +6,13 @@
 #include <mutex>
 #include <memory>
 
+class seq_gen{
+  seq_gen() = delete;
+  seq_gen(seq_gen& oth) = delete;
+   seq_gen(const seq_gen& oth) = delete;
+
+};
+
 class client_settings {
 public:
   uint64_t client_id;
