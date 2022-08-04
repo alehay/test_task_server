@@ -12,7 +12,7 @@ int main (int argc, char * argv []) {
     sequence<uint8_t> test_seq(start, step);
     
     for (int i = 0; i < 10 ; ++i) {
-        std::cout << +test_seq.get()  << " ";
+        std::cout << +test_seq.get_counter()  << " ";
         ++test_seq;
     }
     return 0;

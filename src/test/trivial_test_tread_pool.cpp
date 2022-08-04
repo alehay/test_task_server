@@ -35,7 +35,7 @@ int main() {
   using namespace std::chrono_literals;
   std::this_thread::sleep_for(1500ms);
   std::cout << "wait all !" << std::endl;
-  t.wait_all();
+  //t.wait_all();
 
   return 0;
 }

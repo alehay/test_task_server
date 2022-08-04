@@ -47,13 +47,12 @@ class TCP_server {
     servaddr.sin_port = htons(port);
     // we bind to all interfaces
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    if (bind(listener_socket, (struct sockaddr*)&servaddr, sizeof(sockaddr)) <
-        0) {
+    // clang-format off
+    if (bind(listener_socket, (struct sockaddr*)&servaddr, sizeof(sockaddr)) < 0) {
       printf("error bind ");
       exit(1);
     }
-
+    // clang-format on
     if (listen(listener_socket, 0)) {
       printf("error lisner");
       exit(1);
@@ -63,6 +62,8 @@ class TCP_server {
     while (terminate != true) {
       std::unique_ptr<int> socket_client(new int);
       *socket_client = (accept(listener_socket, NULL, NULL));
+      // why am I here generating a thread, I have a threadpool  ... 
+      //it will have to be redone later
       std::thread(callback, std::move(socket_client)).detach();
     }
 

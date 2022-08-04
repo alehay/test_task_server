@@ -10,6 +10,7 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <atomic>
 
 template <typename T>
 class sequence {
@@ -58,7 +59,7 @@ class sequence {
     return *this;
   }
 
-  T get() { return counter; }
+  T get_counter() { return counter; }
 
   std::string get_param_str() const {
     return (std::to_string(start) + " " +std::to_string(step) + " " + std::to_string(counter));
@@ -72,6 +73,7 @@ class sequence {
 
 class client_settings {
  public:
+  //std::atomic_bool in_processing;
   uint64_t client_id;
   std::unique_ptr<int> socket = nullptr;
   std::vector<sequence<uint64_t>> seq;
@@ -111,11 +113,11 @@ class client_list {
   }
 
   auto begin () {
-    return client_l.cbegin();
+    return client_l.begin();
   }
 
   auto end() {
-    return client_l.cend();
+    return client_l.end();
   }
 
   void close_all_socoekt() {

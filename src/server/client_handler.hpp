@@ -51,7 +51,7 @@ class client_handler {
       if (msg_str.find(comand_start_job) != std::string::npos) {
         std::cout << "client seq is " << new_client.seq.size() << std::endl;
         for (auto &it : new_client.seq) {
-          std::cout << it.get() << " ";
+          std::cout << it.get_counter() << " ";
         }
         std::cout << std::endl;
         client_list::GetInstanse()->emplace_back(std::move(new_client));
