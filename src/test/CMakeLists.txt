@@ -1,5 +1,5 @@
 add_executable(test_tread_pool trivial_test_tread_pool.cpp)
-add_executable(test_client_list trivial_test_client_list.cpp)
+#add_executable(test_client_list trivial_test_client_list.cpp)
 add_executable(test_server trivial_test_server.cpp)
 add_executable(test_client_handler trivial_test_client_handler.cpp )
 

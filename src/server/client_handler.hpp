@@ -16,13 +16,13 @@ class client_handler {
  public:
   void service(std::unique_ptr<int>&& socket_cleint) {
     int msg_size{0};
-    bool term = false;
     client_settings new_client;
     new_client.seq.resize(3);
+    new_client.socket = (std::move(socket_cleint));
 
-    while (!term) {
+    while (!terminate) {
       bzero(msg_buf, 255);
-      msg_size = recv(*socket_cleint, (void*)msg_buf, len, NULL);
+      msg_size = recv(*new_client.socket, (void*)msg_buf, len, NULL);
       if (msg_size < 0) {
         // TODO handle error client;
         printf("error client ");
@@ -54,16 +54,24 @@ class client_handler {
           std::cout << it.get() << " ";
         }
         std::cout << std::endl;
+        client_list::GetInstanse()->emplace_back(std::move(new_client));
         break;
       }
+      
+      send(*new_client.socket, unrecognized_comadn_msg.c_str(), unrecognized_comadn_msg.size() +1, NULL ); 
     }
   }
 
- private:
+
  private:
   char msg_buf[255];
   size_t len = 255;
   std::string comand_start_job = "export seq";
+  std::string unrecognized_comadn_msg = "the command could not be recognized, repeat the input \n";
   std::regex regexp_seq{"^seq([1-3]) ([0-9]+) ([0-9]+)"};
+public:
+  static bool terminate ;  
 };
-#endif  //_CLENT_HANDLER__
+
+bool client_handler::terminate = false;
+#endif  //_CLENT_HANDLER__s
