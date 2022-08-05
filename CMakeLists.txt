@@ -6,7 +6,7 @@ string(ASCII 27 ESC)
 
 project(task_test )
 
-set(CMAKE_BUILD_TYPE Debug) # <------------------ поставь режим сборки!!!!!
+set(CMAKE_BUILD_TYPE ) 
 
 set(C_HEADER_SUFFIX "h")
 set(C_SOURCE_SUFFIX "c")
@@ -68,3 +68,4 @@ ENDIF()
 message(" src load ")
 link_libraries(pthread)
 add_subdirectory(src)
+add_executable (server src/main.cpp)

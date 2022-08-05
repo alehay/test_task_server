@@ -32,14 +32,12 @@ void print_chunk_data (client_settings& client) {
       message += '\n';
     }
     send(*client.socket, message.c_str(), message.size(), NULL );
+  
     using namespace std::chrono_literals;
-   // client.in_processing = false;
     std::this_thread::sleep_for(500ms);
     client.in_process = false;
     return;
 }
-
-
 
 int main(int argc, char* argv[]) {
   
@@ -85,9 +83,6 @@ int main(int argc, char* argv[]) {
 
   std::thread(server_run, port).detach();
   thread_pool thr_pool(2);
-  //thr_pool.run();
-
-
   
   client_list* cli_list = client_list::GetInstanse();
   while ( not TCP_server::terminate )   {

@@ -52,3 +52,13 @@
     3	5	7
     5	8	11
     ...
+
+
+## сбока сервера : 
+
+
+    mkdir build && cd ./build 
+
+    cmake -DCMAKE_BUILD_TYPE=Debug ../
+    
+    cmake --build .
