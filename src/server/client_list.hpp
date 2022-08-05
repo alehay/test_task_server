@@ -17,11 +17,12 @@ class sequence {
  public:
   sequence() = default;
   sequence(sequence&& oth) = default;
+  sequence& operator=(sequence&& oth) = default;
 
   sequence(sequence& oth) = delete;
   sequence(const sequence& oth) = delete;
   sequence& operator=(const sequence& oth) = delete;
-  sequence& operator=(sequence&& oth) = delete;
+ 
 
   /**
    * @brief Construct a new sequence object
@@ -44,8 +45,9 @@ class sequence {
 
   }
 
-  bool is_init () {
-    return (start > 0) and (step > 0); 
+  bool is_valid () {
+    //true if != 0
+    return (start > 0ul)  && (step > 0ul); 
   }
   // prefix operator
   sequence& operator++() {
@@ -62,7 +64,8 @@ class sequence {
   T get_counter() { return counter; }
 
   std::string get_param_str() const {
-    return (std::to_string(start) + " " +std::to_string(step) + " " + std::to_string(counter));
+    
+    return ( std::string(" strt > ") + std::to_string(start) + "; step" +std::to_string(step) + "; counter " + std::to_string(counter));
   }
 
  private:
@@ -73,10 +76,10 @@ class sequence {
 
 class client_settings {
  public:
-  //std::atomic_bool in_processing;
   uint64_t client_id;
   std::unique_ptr<int> socket = nullptr;
   std::vector<sequence<uint64_t>> seq;
+  bool in_process;
   
 };
 
@@ -98,7 +101,8 @@ class client_list {
 
   void emplace_back(client_settings&& client) { 
     std::lock_guard<std::mutex>  guard (internal_mutex);
-    client_l.emplace_back(std::move(client)); 
+    
+    client_l.emplace_back( std::move(client)); 
     client_l.back().client_id = last_client_id;
     ++last_client_id;
   }
@@ -122,7 +126,7 @@ class client_list {
 
   void close_all_socoekt() {
       for(auto &it : client_l) {
-      close(*it.socket);
+        close(*it.socket);
     }
     return;
   }
@@ -134,6 +138,7 @@ class client_list {
   std::mutex internal_mutex;
 
   std::list<client_settings> client_l;
+  
   uint64_t last_client_id {0};
 };
 client_list* client_list::instance_client_list{nullptr};

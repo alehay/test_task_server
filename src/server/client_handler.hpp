@@ -37,23 +37,33 @@ class client_handler {
         std::size_t seq_iter = std::stoul((*iter)[1]);
         std::size_t start = std::stoul((*iter)[2]);
         std::size_t step = std::stoul((*iter)[3]);
-        
+
         new_client.seq.at(seq_iter - 1).set(start, step);
 
-        std::cout << "seq_iter " << seq_iter << "start " << start << "step " << step << std::endl;
+        #ifdef DEBUG_PRINT
+        std::cout << "seq_iter " << seq_iter << " ; start " << start << "; step " << step << std::endl;
+        #endif // DEBUG_PRINT 
         continue;
       }
-      /*
-      std::cout << " first [" << (*iter)[1] << "] second [" << (*iter)[2] << "]"
-                << " third [" << (*iter)[3] << "]" << std::endl;
-      */
 
       if (msg_str.find(comand_start_job) != std::string::npos) {
-        std::cout << "client seq is " << new_client.seq.size() << std::endl;
-        for (auto &it : new_client.seq) {
-          std::cout << it.get_counter() << " ";
-        }
-        std::cout << std::endl;
+        
+        #ifdef DEBUG_PRINT
+          std::cout << "client seq is " << new_client.seq.size() << std::endl;
+          for (auto &it : new_client.seq) {
+            std::cout << it.get_counter() << " ";
+          }
+          std::cout << std::endl;
+        #endif     
+       
+        //  auto it = std::remove_if( new_client.seq.begin(), new_client.seq.end(),[](sequence <typename std::decay<decltype(*new_client.seq.begin())>::type> & _seq) {
+   
+        // remove invalid sequence
+        auto it = std::remove_if( new_client.seq.begin(), new_client.seq.end(),[](sequence <uint64_t> & _seq) {
+          return not _seq.is_valid();
+        });
+        new_client.seq.erase(it,  new_client.seq.end());
+
         client_list::GetInstanse()->emplace_back(std::move(new_client));
         break;
       }

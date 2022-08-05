@@ -46,6 +46,7 @@ IF(CMAKE_BUILD_TYPE MATCHES Debug)
   add_compile_options( -fasynchronous-unwind-tables)
   
   add_compile_definitions(DEBUG)
+  add_compile_definitions(DEBUG_PRINT)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
   enable_testing()
 
