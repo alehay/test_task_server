@@ -6,7 +6,7 @@ string(ASCII 27 ESC)
 
 project(task_test )
 
-set(CMAKE_BUILD_TYPE Debug) # <------------------ поставь режим сборки!!!!!
+set(CMAKE_BUILD_TYPE ) 
 
 set(C_HEADER_SUFFIX "h")
 set(C_SOURCE_SUFFIX "c")
@@ -18,16 +18,15 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-# debag options 
+# debug options 
 message("${ESC}[31m${ESC}")
-message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
+message("\t CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 message("${ESC}[0m${ESC}")
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
   message("${ESC}[31m${ESC}")
-  message(" ——————————► DEBUG ◄—————————— ")
-  message("${ESC}[0m${ESC} -")
+  message(" \t——————————► DEBUG ◄—————————— ")
+  message("${ESC}[0m${ESC} ")
 
   #add_compile_options(-Werror)
   add_compile_options(-pedantic-errors)
@@ -46,8 +45,9 @@ IF(CMAKE_BUILD_TYPE MATCHES Debug)
   add_compile_options( -fasynchronous-unwind-tables)
   
   add_compile_definitions(DEBUG)
+  add_compile_definitions(DEBUG_PRINT)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-
+  enable_testing()
 
 ELSEIF(CMAKE_BUILD_TYPE MATCHES Release)
 message("${ESC}[32m${ESC}")
@@ -67,3 +67,4 @@ ENDIF()
 message(" src load ")
 link_libraries(pthread)
 add_subdirectory(src)
+add_executable (server src/main.cpp)
