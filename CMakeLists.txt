@@ -18,8 +18,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-# debag options 
+# debug options 
 message("${ESC}[31m${ESC}")
 message("\t CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 message("${ESC}[0m${ESC}")

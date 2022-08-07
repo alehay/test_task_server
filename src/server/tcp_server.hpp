@@ -1,6 +1,8 @@
 #ifndef _TCP_SERVER_HPP_
 #define _TCP_SERVER_HPP_
 
+#include "client_list.hpp"
+
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <sys/socket.h>
@@ -17,27 +19,30 @@
 #include <string>
 #include <thread>
 
-#include "client_list.hpp"
-
-class TCP_server {
- public:
+/**
+ * @brief simple tcp server
+ * 
+ */
+class TCP_server
+{
+public:
   TCP_server() = delete;
-  TCP_server(TCP_server& oth) = delete;
-  TCP_server(const TCP_server& oth) = delete;
-  TCP_server(TCP_server&& oth) = delete;
+  TCP_server(TCP_server &oth) = delete;
+  TCP_server(const TCP_server &oth) = delete;
+  TCP_server(TCP_server &&oth) = delete;
   TCP_server operator=(const TCP_server oth) = delete;
-  TCP_server operator=(TCP_server&& oth) = delete;
+  TCP_server operator=(TCP_server &&oth) = delete;
 
   TCP_server(const uint16_t _port,
-             std::function<void(std::unique_ptr<int>&&)> _callback)
+             std::function<void(std::unique_ptr<int> &&)> _callback)
       : port(_port),
-        callback(_callback){
+        callback(_callback){};
 
-        };
-
-  int run() {
+  int run()
+  {
     listener_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (listener_socket < 0) {
+    if (listener_socket < 0)
+    {
       perror("socket");
       exit(1);
     }
@@ -53,35 +58,36 @@ class TCP_server {
       exit(1);
     }
     // clang-format on
-    if (listen(listener_socket, 0)) {
+    if (listen(listener_socket, 0))
+    {
       printf("error lisner");
       exit(1);
     }
 
     uint64_t test_id = 0;
-    while (terminate != true) {
+    while (not terminate)
+    {
       std::unique_ptr<int> socket_client(new int);
       *socket_client = (accept(listener_socket, NULL, NULL));
-      // why am I here generating a thread, I have a threadpool  ... 
-      //it will have to be redone later
+      // We have to process new client therefore move it to new thread and process in it
       std::thread(callback, std::move(socket_client)).detach();
     }
 
     close(listener_socket);
   }
 
- private:
+private:
   int listener_socket;
   struct sockaddr_in servaddr;
   struct sockaddr_in cliet_addr;
   uint16_t port;
-  std::function<void(std::unique_ptr<int>&&)> callback;
-  int* socket_client{nullptr};
+  std::function<void(std::unique_ptr<int> &&)> callback;
+  int *socket_client{nullptr};
 
- public:
+public:
   static bool terminate;
 };
 
 bool TCP_server::terminate = false;
 
-#endif  //_TCP_SERVER_HPP_
+#endif //_TCP_SERVER_HPP_

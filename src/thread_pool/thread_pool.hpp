@@ -11,6 +11,10 @@
 #include <unordered_set>
 #include <vector>
 
+/**
+ * @brief runs async tasks in multithread mode
+ * 
+ */
 class thread_pool {
  public:
   // prohibition on copying and moving
@@ -93,6 +97,7 @@ class thread_pool {
     }
   }
 
+  private:
   // task queue - stores the function (task) to be executed and the number of
   // this task
   std::queue<std::pair<std::future<void>, int64_t>> queue_task;

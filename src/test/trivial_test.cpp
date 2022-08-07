@@ -10,7 +10,7 @@
 void signal_handler(int signum) {
   TCP_server::terminate = true;
   client_handler::terminate = true;
-  client_list::GetInstanse()->close_all_socoekt();
+  client_list::get_instance()->close_all_socket();
 
   /* Close all open file descriptors */
   int x;
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
   std::thread(server_run, port).detach();
   thread_pool thr_pool(2);
   
-  client_list* cli_list = client_list::GetInstanse();
+  client_list* cli_list =client_list::get_instance();
   while ( not TCP_server::terminate )   {
     for (auto & client:  *cli_list) {
      if ( not client.in_process) {   
