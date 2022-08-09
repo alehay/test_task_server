@@ -13,13 +13,13 @@
  * @param signum 
  * @details close all sockets and file descriptors
  */
-void signal_handler(int signum)
+void signal_handler(int)
 {
   TCP_server::terminate = true;
   client_handler::terminate = true;
   client_list::get_instance()->close_all_socket();
 
-  for (int x = sysconf(_SC_OPEN_MAX); x >= 0; x--)
+  for (auto x = sysconf(_SC_OPEN_MAX); x >= 0; x--)
   {
     close(x);
   }
@@ -47,7 +47,7 @@ void print_chunk_data(client_settings &client)
 
   // TODO: check socket connection, if it closes then delete client or set flag or them
 
-  send(*client.socket, message.c_str(), message.size(), NULL);
+  send(*client.socket, message.c_str(), message.size(), 0);
 #ifdef DEBUG
   using namespace std::chrono_literals;
   std::this_thread::sleep_for(500ms);
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     return 0;
   }
 
-  uint16_t port = std::atoi(argv[1]);
+  long port = std::atoi(argv[1]);
 
 
   // Lambda for server starting with handler (client_handler::service)

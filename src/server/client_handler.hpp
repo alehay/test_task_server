@@ -23,7 +23,7 @@ public:
 
   void service(std::unique_ptr<int> &&socket_client)
   {
-    int msg_size{0};
+    ssize_t msg_size{0};
     client_settings new_client;
     new_client.seq.resize(3);
     new_client.socket = (std::move(socket_client));
@@ -31,7 +31,7 @@ public:
     while (not terminate)
     {
       bzero(msg_buf, len);
-      msg_size = recv(*new_client.socket, (void *)msg_buf, len, NULL);
+      msg_size = recv(*new_client.socket, (void *) msg_buf, len, 0);
       if (msg_size < 0)
       {
         // TODO handle error client;
@@ -61,7 +61,7 @@ public:
         catch (const std::out_of_range &e)
         {
           std::string error {"Is too long for unsigned long long (uint64_t)\n"};
-          send(*new_client.socket, error.c_str(), error.size() + 1, NULL);
+          send(*new_client.socket, error.c_str(), error.size() + 1, 0);
           continue;
         }
 
@@ -85,8 +85,11 @@ public:
                                  { return not seq_.is_valid(); });
         new_client.seq.erase(it, new_client.seq.end());
 
-        client_list::get_instance()->emplace_back(std::move(new_client));
-        break;
+        if(not new_client.seq.empty()){
+          client_list::get_instance()->emplace_back(std::move(new_client));
+          break;
+        }
+        new_client.seq.resize(3);
       }
 
       send(*new_client.socket, unrecognized_command_msg.c_str(), unrecognized_command_msg.size() + 1, NULL);
