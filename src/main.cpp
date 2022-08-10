@@ -33,6 +33,10 @@ int main(int argc, char *argv[])
   signal(SIGTSTP, signal_handler);
   signal(SIGTERM, signal_handler);
 
+  // ignore SIG , when we send close socket ;
+  signal(SIGPIPE, SIG_IGN);
+
+
   if (argc < 2)
   {
     std::cout << "plesse set port " << std::endl;
