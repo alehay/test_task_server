@@ -38,7 +38,7 @@ public:
       : port(_port),
         callback(_callback){};
 
-  int run()
+  void run()
   {
     listener_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (listener_socket < 0)

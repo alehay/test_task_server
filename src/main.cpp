@@ -19,10 +19,6 @@ void signal_handler(int)
   client_handler::terminate = true;
   client_list::get_instance()->close_all_socket();
 
-  for (auto x = sysconf(_SC_OPEN_MAX); x >= 0; x--)
-  {
-    close(x);
-  }
   exit(1);
 }
 
@@ -43,7 +39,7 @@ int main(int argc, char *argv[])
     return 0;
   }
 
-  long port = std::atoi(argv[1]);
+  uint16_t port = static_cast<uint16_t>(std::atoi(argv[1]));
 
   client_handler cl_handler;
 

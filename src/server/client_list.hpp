@@ -35,18 +35,18 @@ public:
    * @param _step step value
    * @details counter - current value = start at the constructor stage
    */
-  sequence(T _start, T _step)
-      : start(_start),
-        step(_step),
-        counter(_start){
+  sequence(T start_, T step_)
+      : start(start_),
+        step(step_),
+        counter(start_){
 
         };
 
-  void set(T _start, T _step)
+  void set(T start_, T step_)
   {
-    start = _start;
-    step = _step;
-    counter = _start;
+    start = start_;
+    step = step_;
+    counter = start_;
   }
 
   bool is_valid()
@@ -64,7 +64,7 @@ public:
     }
     else
     {
-      counter += step;
+      counter = static_cast<T> (counter + step);
     }
     return *this;
   }
@@ -172,9 +172,9 @@ public:
 
   void close_all_socket()
   {
-    for (auto &it : client_l)
+    for (auto & [key, settings] : client_l)
     {
-      close(*it.second.socket);
+      close(*(settings.socket));
     }
     return;
   }

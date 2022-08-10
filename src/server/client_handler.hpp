@@ -28,17 +28,17 @@ public:
     client.socket = (std::move(socket_client));
     client_list *cl_list = client_list::get_instance();
 
-    if (clietn_dialog(client))
+    if (client_dialog(client))
     {
       std::uint64_t id_client = client_list::get_instance()->emplace_back(std::move(client));
-      std::cout << "client ADD , activ clietn is " << cl_list->active_clients() << std::endl;
+      std::cout << "ADD client, active client is " << cl_list->active_clients() << std::endl;
       send_data(cl_list->at(id_client));
 
       cl_list->erase(id_client);
-      std::cout << "client DELETE , activ clietn is " << cl_list->active_clients() << std::endl;
+      std::cout << "DELETE client, active client is " << cl_list->active_clients() << std::endl;
       return;
     }
-    std::cout << "client IGNORE , activ clietn is " << cl_list->active_clients() << std::endl;
+    std::cout << "IGNORE client, active client is " << cl_list->active_clients() << std::endl;
 
     return;
   }
@@ -51,7 +51,7 @@ private:
    * @return true successfully received all parameters
    * @return false
    */
-  bool clietn_dialog(client_settings &new_client)
+  bool client_dialog(client_settings &new_client)
   {
     ssize_t msg_size{0};
     new_client.seq.resize(3);
@@ -131,6 +131,7 @@ private:
         return false;
       }
     }
+    return false;
   }
 
   void send_data(client_settings &client)
@@ -141,7 +142,7 @@ private:
     while (not terminate)
     {
       message.clear();
-      for (int i = 0; i < 1; ++i)
+      for (int i = 0; i < 1024; ++i)
       {
         for (auto &seq : client.seq)
         {
@@ -158,8 +159,6 @@ private:
         std::cout << "connection lost" << std::endl;
         return;
       }
-      using namespace std::chrono_literals;
-      std::this_thread::sleep_for(500ms);
     }
   }
 
