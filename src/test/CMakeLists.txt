@@ -1,4 +1,3 @@
-add_executable(test_server trivial_test.cpp)
 
 
 add_executable(test_sequence test_sequence.cpp)

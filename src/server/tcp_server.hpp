@@ -21,7 +21,7 @@
 
 /**
  * @brief simple tcp server
- * 
+ *
  */
 class TCP_server
 {
@@ -38,7 +38,7 @@ public:
       : port(_port),
         callback(_callback){};
 
-  int run()
+  void run()
   {
     listener_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (listener_socket < 0)
@@ -52,6 +52,8 @@ public:
     servaddr.sin_port = htons(port);
     // we bind to all interfaces
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    int bool_value = 1;
+    setsockopt(listener_socket, SOL_SOCKET, SO_REUSEADDR, &bool_value, sizeof(bool_value));
     // clang-format off
     if (bind(listener_socket, (struct sockaddr*)&servaddr, sizeof(sockaddr)) < 0) {
       printf("error bind ");
@@ -64,7 +66,6 @@ public:
       exit(1);
     }
 
-    uint64_t test_id = 0;
     while (not terminate)
     {
       std::unique_ptr<int> socket_client(new int);
