@@ -1,6 +1,5 @@
 #include "server/client_handler.hpp"
 #include "server/tcp_server.hpp"
-#include "thread_pool/thread_pool.hpp"
 
 #include <signal.h>
 #include <functional>
