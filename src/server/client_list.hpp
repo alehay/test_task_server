@@ -6,14 +6,14 @@
 #include <string>
 #include <cstdint>
 #include <vector>
-#include <list>
+#include <unordered_map>
 #include <memory>
 #include <mutex>
 #include <atomic>
 
 /**
  * @brief stores sequence setting: start, step and counter
- * @details for increment of the sequence you may call operator++ 
+ * @details for increment of the sequence you may call operator++
  * @tparam T is integer type only
  */
 template <typename T>
@@ -84,19 +84,38 @@ private:
 
 /**
  * @brief stores user info: id, socket descriptor, vector of sequences and process flag
- * 
+ *
  */
 struct client_settings
 {
+  client_settings()
+  {
+    client_id = counter;
+    ++counter;
+  }
+
+  client_settings(client_settings &&oth) = default;
+
+  client_settings(client_settings &oth) = delete;
+  client_settings &operator=(const client_settings &oth) = delete;
+
   std::uint64_t client_id;
   std::unique_ptr<int> socket{nullptr};
   std::vector<sequence<std::uint64_t>> seq;
-  bool in_process;
+
+  friend bool operator<(const client_settings &lft, const client_settings &rht)
+  {
+    return lft.client_id < rht.client_id;
+  }
+
+private:
+  static std::uint64_t counter;
 };
+std::uint64_t client_settings::counter{0};
 
 /**
  * @brief thread-safe singleton which contains the list of clients
- * 
+ *
  */
 class client_list
 {
@@ -117,13 +136,23 @@ public:
     return instance_client_list;
   }
 
-  void emplace_back(client_settings &&client)
+  std::uint64_t emplace_back(client_settings &&client)
   {
     std::lock_guard<std::mutex> guard(internal_mutex);
+    std::uint64_t id = client.client_id;
+    client_l.emplace(client.client_id, std::move(client));
+    return id;
+  }
 
-    client_l.emplace_back(std::move(client));
-    client_l.back().client_id = last_client_id;
-    ++last_client_id;
+  void erase(std::uint64_t it)
+  {
+    std::lock_guard<std::mutex> guard(internal_mutex);
+    client_l.erase(it);
+  }
+
+  client_settings &at(uint64_t id)
+  {
+    return client_l.at(id);
   }
 
   std::size_t size()
@@ -145,12 +174,17 @@ public:
   {
     for (auto &it : client_l)
     {
-      close(*it.socket);
+      close(*it.second.socket);
     }
     return;
   }
 
-// TODO: write erase_of_client() method
+  auto active_clients() const
+  {
+    return client_l.size();
+  }
+
+  // TODO: write erase_of_client() method
 
 private:
   client_list() = default;
@@ -165,7 +199,7 @@ private:
   static client_list *instance_client_list;
   std::mutex internal_mutex;
 
-  std::list<client_settings> client_l;
+  std::unordered_map<std::uint64_t, client_settings> client_l;
 
   uint64_t last_client_id{0};
 };

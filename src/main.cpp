@@ -9,8 +9,8 @@
 
 /**
  * @brief Handle signal from OS
- * 
- * @param signum 
+ *
+ * @param signum
  * @details close all sockets and file descriptors
  */
 void signal_handler(int)
@@ -24,36 +24,6 @@ void signal_handler(int)
     close(x);
   }
   exit(1);
-}
-
-/**
- * @brief Send piece of data to client socket
- * 
- * @param client client setting contains port, socket and sequence of sequences, process flag
- */
-void print_chunk_data(client_settings &client)
-{
-  std::string message;
-  message.reserve(1522);
-  for (int i = 0; i < 100; ++i)
-  {
-    for (auto &seq : client.seq)
-    {
-      message += std::to_string(seq.get_counter()) + " ";
-      ++seq;
-    }
-    message += '\n';
-  }
-
-  // TODO: check socket connection, if it closes then delete client or set flag or them
-
-  send(*client.socket, message.c_str(), message.size(), 0);
-#ifdef DEBUG
-  using namespace std::chrono_literals;
-  std::this_thread::sleep_for(500ms);
-#endif
-  client.in_process = false;
-  return;
 }
 
 int main(int argc, char *argv[])
@@ -71,33 +41,13 @@ int main(int argc, char *argv[])
 
   long port = std::atoi(argv[1]);
 
+  client_handler cl_handler;
 
-  // Lambda for server starting with handler (client_handler::service)
-  auto server_run = [](uint16_t port)
+  auto handler = [&cl_handler](std::unique_ptr<int> &&socket_client) -> void
   {
-    client_handler handler;
-    auto callback =
-        std::bind(&client_handler::service, &handler, std::placeholders::_1);
-    TCP_server server(port, callback);
-    server.run();
+    cl_handler.service(std::move(socket_client));
   };
 
-  std::thread(server_run, port).detach();
-  thread_pool thr_pool(2);
-
-  // Get pointer to client list singleton, which contains info about clients
-  client_list *cli_list = client_list::get_instance();
-  while (not TCP_server::terminate)
-  {
-    for (auto &client : *cli_list)
-    {
-      if (not client.in_process)
-      {
-        client.in_process = true;
-        // Add task to print piece of sequences to the thread pool for the client 
-        thr_pool.add_task(print_chunk_data, std::ref(client));
-      }
-    }
-    std::this_thread::yield();
-  }
+  TCP_server server(port, handler);
+  server.run();
 }

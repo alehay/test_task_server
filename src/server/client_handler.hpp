@@ -11,32 +11,60 @@
 #include <iostream>
 
 #include "client_list.hpp"
+#include <thread>
 
 /**
  * @brief communicates with users
- * @details it receives commands from client, parses them 
+ * @details it receives commands from client, parses them
  * and adds new client with setttings to client list
  */
 class client_handler
 {
 public:
-
   void service(std::unique_ptr<int> &&socket_client)
   {
+    client_settings client;
+    client.seq.resize(3);
+    client.socket = (std::move(socket_client));
+    client_list *cl_list = client_list::get_instance();
+
+    if (clietn_dialog(client))
+    {
+      std::uint64_t id_client = client_list::get_instance()->emplace_back(std::move(client));
+      std::cout << "client ADD , activ clietn is " << cl_list->active_clients() << std::endl;
+      send_data(cl_list->at(id_client));
+
+      cl_list->erase(id_client);
+      std::cout << "client DELETE , activ clietn is " << cl_list->active_clients() << std::endl;
+      return;
+    }
+    std::cout << "client IGNORE , activ clietn is " << cl_list->active_clients() << std::endl;
+
+    return;
+  }
+
+private:
+  /**
+   * @brief filling in client settings
+   *
+   * @param new_client a clean client, to fill in
+   * @return true successfully received all parameters
+   * @return false
+   */
+  bool clietn_dialog(client_settings &new_client)
+  {
     ssize_t msg_size{0};
-    client_settings new_client;
     new_client.seq.resize(3);
-    new_client.socket = (std::move(socket_client));
 
     while (not terminate)
     {
       bzero(msg_buf, len);
-      msg_size = recv(*new_client.socket, (void *) msg_buf, len, 0);
+      msg_size = recv(*new_client.socket, (void *)msg_buf, len, 0);
       if (msg_size < 0)
       {
         // TODO handle error client;
-        printf("error client ");
-        return;
+        perror("error client ");
+        return false;
       }
 
       std::string msg_str(msg_buf, msg_size);
@@ -53,15 +81,18 @@ public:
 
           new_client.seq.at(seq_iter - 1).set(start, step);
 
-        #ifdef DEBUG_PRINT
+#ifdef DEBUG_PRINT
           std::cout << "seq_iter " << seq_iter << " ; start " << start << "; step " << step << std::endl;
-        #endif // DEBUG_PRINT
-
+#endif // DEBUG_PRINT
         }
         catch (const std::out_of_range &e)
         {
-          std::string error {"Is too long for unsigned long long (uint64_t)\n"};
-          send(*new_client.socket, error.c_str(), error.size() + 1, 0);
+          std::string error{"Is too long for unsigned long long (uint64_t)\n"};
+          if (send(*new_client.socket, error.c_str(), error.size() + 1, 0) < 0)
+          {
+            perror("connection error");
+            return false;
+          }
           continue;
         }
 
@@ -79,20 +110,56 @@ public:
         }
         std::cout << std::endl;
 #endif
-
         // remove invalid sequence
         auto it = std::remove_if(new_client.seq.begin(), new_client.seq.end(), [](sequence<uint64_t> &seq_)
                                  { return not seq_.is_valid(); });
         new_client.seq.erase(it, new_client.seq.end());
 
-        if(not new_client.seq.empty()){
-          client_list::get_instance()->emplace_back(std::move(new_client));
-          break;
+        if (not new_client.seq.empty())
+        {
+          return true;
         }
-        new_client.seq.resize(3);
+        else
+        {
+          new_client.seq.resize(3);
+        }
       }
 
-      send(*new_client.socket, unrecognized_command_msg.c_str(), unrecognized_command_msg.size() + 1, NULL);
+      if (send(*new_client.socket, unrecognized_command_msg.c_str(), unrecognized_command_msg.size() + 1, 0) < 0)
+      {
+        perror("error client ");
+        return false;
+      }
+    }
+  }
+
+  void send_data(client_settings &client)
+  {
+    std::string message;
+    message.reserve(1522);
+
+    while (not terminate)
+    {
+      message.clear();
+      for (int i = 0; i < 1; ++i)
+      {
+        for (auto &seq : client.seq)
+        {
+          message += std::to_string(seq.get_counter()) + " ";
+          ++seq;
+        }
+        message += '\n';
+      }
+
+      // TODO: check socket connection, if it closes then delete client or set flag or them
+
+      if (send(*client.socket, message.c_str(), message.size(), 0) < 0)
+      {
+        std::cout << "connection lost" << std::endl;
+        return;
+      }
+      using namespace std::chrono_literals;
+      std::this_thread::sleep_for(500ms);
     }
   }
 
